@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:barcode_scan/barcode_scan.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'dart:async';
 
 void main() => runApp(MyApp());
@@ -52,18 +54,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final contentController = TextEditingController();
 
   String _QRcode_Reader = "";
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
 
   void _generateQRcode() {
     showDialog(
@@ -91,6 +81,21 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
+  }
+
+  _read() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'content';
+    final value = prefs.getString(key) ?? 0;
+    print('read: $value');
+  }
+
+  _save() async {
+    final prefs = await SharedPreferences.getInstance();
+    final key = 'content';
+    final value = {"userName": 'name', "value": '321'};
+    prefs.setString(key, jsonEncode(value));
+    print('saved $value');
   }
 
   Future _scanQR() async {
@@ -179,6 +184,24 @@ class _MyHomePageState extends State<MyHomePage> {
                   Text(
                     '$_QRcode_Reader',
                   )
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RaisedButton(
+                child: Text('Read Information'),
+                onPressed: () {
+                  _read();
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: RaisedButton(
+                child: Text('Save Information'),
+                onPressed: () {
+                  _save();
+                },
               ),
             ),
           ],
